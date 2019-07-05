@@ -10,8 +10,14 @@ http.createServer(app).listen(3000)
 
 app.use(express.static('static'))
 
-app.get('/hello', (req, res) => {
-  res.send('Hello World')
+app.get('/', (req, res) => {
+  res.send(
+`<pre>
+    Services:
+
+    google translate:        /lang/googletranslate?tl={target language}&q={query}
+    hungarian word analysis: /lang/hunmorph-foma?q={word}
+</pre>`)
 })
 
 app.get('/lang/googletranslate', (req, res) => {
