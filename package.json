@@ -1,0 +1,28 @@
+{
+  "name": "sm-lang",
+  "version": "1.0.0",
+  "description": "my private lang service",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start index.js --watch --node-args=\"-r esm\"",
+    "stop": "pm2 stop"
+  },
+  "type": "module",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.0",
+    "pm2": "^3.5.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sarimarton/sm-lang.git"
+  },
+  "keywords": [],
+  "author": "Marton Sari <sarimarton@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sarimarton/sm-lang/issues"
+  },
+  "homepage": "https://github.com/sarimarton/sm-lang#readme"
+}
