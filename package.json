@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "pm2 start index.js --watch --node-args=\"-r esm\"",
-    "stop": "pm2 stop index.js",
+    "stop": "pm2 stop index.js"
   },
   "type": "module",
   "dependencies": {
