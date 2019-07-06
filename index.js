@@ -8,30 +8,46 @@ const app = express()
 
 http.createServer(app).listen(3000)
 
-app.use(express.static('static'))
+const getGoogleTranslate = (tl, q) =>
+  fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${q}`)
+    .then(res => res.text())
+    .then(txt => { try { return utf8.decode(txt) } catch { return txt } })
+    .then(JSON.parse)
+    .then(result => result[0][0][0])
+
 
 app.get('/', (req, res) => {
   res.send(
 `<pre>
     Services:
 
-    google translate:        /lang/googletranslate?tl={target language}&q={query}
-    hungarian word analysis: /lang/hunmorph-foma?q={word}
+    google translate:                                     /lang/googletranslate?tl={target language}&q={query}
+    google multi translate (en, sw, hu, sw2en, hu2en):    /lang/googletranslate/multi?q={query}
+    hungarian word analysis:                              /lang/hunmorph-foma?q={word}
 </pre>`)
 })
 
 app.get('/lang/googletranslate', (req, res) => {
-  const utf8Decode = txt => {
-    try { return utf8.decode(txt) } catch { return txt }
-  }
+  getGoogleTranslate(req.query.tl, req.query.q)
+    .then(result => res.send(result))
+})
 
-  fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${req.query.tl}&dt=t&q=${req.query.q}`)
-    .then(res => res.text())
-    .then(utf8Decode)
-    .then(JSON.parse)
-    .then(result => {
-      res.send(result[0][0][0])
-    })
+app.get('/lang/googletranslate/multi', (req, res) => {
+  Promise.all([
+    getGoogleTranslate('en', req.query.q),
+    getGoogleTranslate('sw', req.query.q),
+    getGoogleTranslate('hu', req.query.q),
+  ])
+  .then(([en, sw, hu]) =>
+    Promise.all([
+      en, sw, hu,
+      getGoogleTranslate('en', sw),
+      getGoogleTranslate('en', hu),
+    ])
+  )
+  .then(([en, sw, hu, en2sw, hu2sw]) => ({ en, sw, en2sw, hu2sw }))
+  .then(JSON.stringify)
+  .then(result => res.send(result))
 })
 
 app.get('/lang/hunmorph-foma', (req, res) => {
