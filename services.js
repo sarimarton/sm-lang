@@ -73,7 +73,10 @@ export const getGoogleTranslateFetch3 = (tl, q) =>
 
 
 export const getGoogleTranslatePuppeteer = async (tl, q) => {
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox']
+  })
+  
   const page = await browser.newPage()
   await page.setViewport({ width: 1280, height: 1800 })
   await page.goto(`https://translate.google.com/#view=home&op=translate&sl=auto&tl=${tl}&text=${q}`)
@@ -85,10 +88,10 @@ export const getGoogleTranslatePuppeteer = async (tl, q) => {
   return info
 }
 
-
 // export const getGoogleTranslate = getGoogleTranslateFetch
 // export const getGoogleTranslate = getGoogleTranslateCurl
 export const getGoogleTranslate = getGoogleTranslatePuppeteer
+
 
 export const hunmorphFomaAnalysis = q =>
   new Promise(resolve => {
