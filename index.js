@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 
     google translate:                                     /lang/googletranslate?tl={target language}&q={query}
     google multi translate (en, sw, hu, sw2en, hu2en):    /lang/googletranslate/multi?q={query}
-    hungarian word analysis:                              /lang/hunmorph-foma?q={word}
+    hungarian word analysis:                              /lang/hu/wordanalysis?q={word}
 </pre>`)
 })
 
@@ -68,4 +68,9 @@ app.get('/lang/hunmorph-foma', (req, res) => {
     (error, stdout, stderr) => {
       res.send(stdout)
   })
+})
+
+app.get('/lang/hu/wordanalysis', (req, res) => {
+  req.url = '/lang/hunmorph-foma'
+  app.handle(req, res)
 })

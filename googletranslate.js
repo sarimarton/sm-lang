@@ -6,3 +6,6 @@ exec(`curl 'https://translate.google.hu/translate_a/single?client=webapp&sl=auto
     console.log(JSON.parse(stdout)[0][0][0])
   }
 )
+
+
+// sajnál/VERB+Definite Subject+Sg1
