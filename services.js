@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import utf8 from 'utf8'
-import { exec } from 'child_process'
+import { exec, execSync } from 'child_process'
 import puppeteer from 'puppeteer'
 
 export const getGoogleTranslateFetch = (tl, q) =>
@@ -97,13 +97,10 @@ export const getGoogleTranslate = (tl, q) =>
     .catch(() => getGoogleTranslatePuppeteer(tl, q))
 
 
-export const hunmorphFomaAnalysis = q =>
-  new Promise(resolve => {
-    const child = exec(`echo ${q} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
-      (error, stdout, stderr) => {
-        resolve(
-          stdout
-            .replace(/\n/g, '').replace(/\t+/, ': ')
-        )
-      })
-  })
+export const hunmorphFomaAnalysis = q => {
+  return execSync(
+      `echo ${q} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
+      { encoding: 'utf8' }
+    )
+    .replace(/\n/g, '').replace(/\t+/, ': ')
+}
