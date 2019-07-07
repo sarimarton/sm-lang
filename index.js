@@ -28,15 +28,11 @@ app.get('/lang/googletranslate', (req, res) => {
     .then(result => res.send(result))
 })
 
-app.get('/lang/googletranslate/multi', (req, res) => {
-  Promise.resolve()
-    .then(res => ({ en: getGoogleTranslate('en', req.query.q) }))
-    .then(res => ({ sw: getGoogleTranslate('sw', req.query.q), ...res }))
-    .then(res => ({ hu: getGoogleTranslate('hu', req.query.q), ...res }))
-    .then(res => ({ sw2en: getGoogleTranslate('en', res.sw), ...res }))
-    .then(res => ({ hu2en: getGoogleTranslate('en', res.hu), ...res }))
-
-  // Promise.all([
+const getMulti = async (req) => {
+  // Parallel run kills the server with puppeteer, and also possibly triggers
+  // Google Translate service temporary ban with the fetch method
+  
+  // return Promise.all([
   //   getGoogleTranslate('en', req.query.q),
   //   getGoogleTranslate('sw', req.query.q),
   //   getGoogleTranslate('hu', req.query.q),
@@ -50,6 +46,17 @@ app.get('/lang/googletranslate/multi', (req, res) => {
   // )
   // .then(([en, sw, hu, sw2en, hu2en]) => ({ en, sw, hu, sw2en, hu2en }))
 
+  const en = await getGoogleTranslate('en', req.query.q)
+  const sw = await getGoogleTranslate('sw', req.query.q)
+  const hu = await getGoogleTranslate('hu', req.query.q)
+  const sw2en = await getGoogleTranslate('en', sw)
+  const hu2en = await getGoogleTranslate('en', hu)
+
+  return { en, sw, hu, sw2en, hu2en }
+}
+
+app.get('/lang/googletranslate/multi', (req, res) => {
+  getMulti(req)
   .then(JSON.stringify)
   .then(result => res.send(result))
 })
@@ -65,27 +72,19 @@ app.get('/lang/hu/wordanalysis', (req, res) => {
 })
 
 app.get('/lang/everything', (req, res) => {
-  Promise.all([
-    getGoogleTranslate('en', req.query.q),
-    getGoogleTranslate('sw', req.query.q),
-    getGoogleTranslate('hu', req.query.q),
-  ])
-  .then(([en, sw, hu]) =>
-    Promise.all([
-      en, sw, hu,
-      getGoogleTranslate('en', sw),
-      getGoogleTranslate('en', hu),
-      Promise.all(
-        hu.split(' ')
-        .map(word => word.replace(/[?!, ]|\n/g, '').trim())
-        .filter(word => word)
-        .map(hunmorphFomaAnalysis)
-      )
-    ])
+  getMulti(req)
+  .then(res =>
+    Promise.all(
+      res.hu.split(' ')
+      .map(word => word.replace(/[?!, ]|\n/g, '').trim())
+      .filter(word => word)
+      .map(hunmorphFomaAnalysis)
+    )
+    .then(huWords => ({
+      ...res,
+      huWords
+    }))
   )
-  .then(([en, sw, hu, sw2en, hu2en, huWords]) => ({
-    en, sw, hu, sw2en, hu2en, huWords
-  }))
   .then(JSON.stringify)
   .then(result => res.send(result))
 })
