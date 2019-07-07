@@ -29,19 +29,27 @@ app.get('/lang/googletranslate', (req, res) => {
 })
 
 app.get('/lang/googletranslate/multi', (req, res) => {
-  Promise.all([
-    getGoogleTranslate('en', req.query.q),
-    getGoogleTranslate('sw', req.query.q),
-    getGoogleTranslate('hu', req.query.q),
-  ])
-  .then(([en, sw, hu]) =>
-    Promise.all([
-      en, sw, hu,
-      getGoogleTranslate('en', sw),
-      getGoogleTranslate('en', hu),
-    ])
-  )
-  .then(([en, sw, hu, sw2en, hu2en]) => ({ en, sw, hu, sw2en, hu2en }))
+  Promise.resolve()
+    .then(res => ({ en: getGoogleTranslate('en', req.query.q) }))
+    .then(res => ({ sw: getGoogleTranslate('sw', req.query.q), ...res }))
+    .then(res => ({ hu: getGoogleTranslate('hu', req.query.q), ...res }))
+    .then(res => ({ sw2en: getGoogleTranslate('en', res.sw), ...res }))
+    .then(res => ({ hu2en: getGoogleTranslate('en', res.hu), ...res }))
+
+  // Promise.all([
+  //   getGoogleTranslate('en', req.query.q),
+  //   getGoogleTranslate('sw', req.query.q),
+  //   getGoogleTranslate('hu', req.query.q),
+  // ])
+  // .then(([en, sw, hu]) =>
+  //   Promise.all([
+  //     en, sw, hu,
+  //     getGoogleTranslate('en', sw),
+  //     getGoogleTranslate('en', hu),
+  //   ])
+  // )
+  // .then(([en, sw, hu, sw2en, hu2en]) => ({ en, sw, hu, sw2en, hu2en }))
+
   .then(JSON.stringify)
   .then(result => res.send(result))
 })
