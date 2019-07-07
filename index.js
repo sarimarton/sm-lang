@@ -73,13 +73,22 @@ app.get('/lang/hu/wordanalysis', (req, res) => {
 
 app.get('/lang/everything', (req, res) => {
   getMulti(req)
-  .then(res => ({
-    ...res,
-    huWords: res.hu.split(' ')
+  .then(res => {
+    const huWords = res.hu.split(' ')
       .map(word => word.replace(/[?!, ]|\n/g, '').trim())
       .filter(word => word)
+
+    const huWordsAnalysisMap = huWords
       .reduce((cum, next) => ({ ...cum, [next]: hunmorphFomaAnalysis(next) }), {})
-  }))
+
+    return {
+      ...res,
+      huWordsAnalysisMap,
+      huAnalysisText: huWords
+        .map(word => huWordsAnalysisMap[word])
+        .join('\n\n')
+    }
+  })
   .then(JSON.stringify)
   .then(result => res.send(result))
 })
