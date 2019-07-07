@@ -69,8 +69,8 @@ app.get('/lang/everything', (req, res) => {
       getGoogleTranslate('en', hu),
       Promise.all(
         hu.split(' ')
-        .map(word => word.trim()) //.replace(/\W/g, ''))
-        // .filter(word => word)
+        .map(word => word.replace(/[?!, ]|\n/g, '').trim())
+        .filter(word => word)
         .map(hunmorphFomaAnalysis)
       )
     ])
