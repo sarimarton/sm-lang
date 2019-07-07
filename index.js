@@ -83,6 +83,7 @@ app.get('/lang/everything', (req, res) => {
 
     return {
       ...res,
+      huWords,
       huWordsAnalysisMap,
       huAnalysisText: huWords
         .map(word => huWordsAnalysisMap[word])
