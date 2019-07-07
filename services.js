@@ -76,7 +76,7 @@ export const getGoogleTranslatePuppeteer = async (tl, q) => {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox']
   })
-  
+
   const page = await browser.newPage()
   await page.setViewport({ width: 1280, height: 1800 })
   await page.goto(`https://translate.google.com/#view=home&op=translate&sl=auto&tl=${tl}&text=${q}`)
@@ -95,7 +95,7 @@ export const getGoogleTranslate = getGoogleTranslatePuppeteer
 
 export const hunmorphFomaAnalysis = q =>
   new Promise(resolve => {
-    const child = exec(`echo ${q} | ./deps/foma-0.9.18/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
+    const child = exec(`echo ${q} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
       (error, stdout, stderr) => {
         resolve(
           stdout

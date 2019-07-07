@@ -1,12 +1,23 @@
 # lang
 my private lang service
 
-## Installing deps:
+## Dependencies
+
+- foma
+- hunmorph-foma
+- puppeteer
+
+foma and hunmorph-foma must be installed in the deps/ folder (as 'foma' and
+'hunmorph-foma' folders).
+
+### Installing Puppeteer
+
+For puppeteer, on macOS there's no problem. On CentOS7, you have to follow these
+steps: https://github.com/GoogleChrome/puppeteer/issues/2857
+
+### Installing foma:
 
 - mkdir deps
-
-- Install foma:
-
     - Elérés: https://bitbucket.org/mhulden/foma/downloads/ (vagy https://code.google.com/archive/p/foma/)
     - Elvileg kínál binárisokat, de nekem a source fordítással ment. A binárisok mindenféle hiányzó libek miatt elfaileltek (libtinfo.so.5 és valami más)
         - mac-en gond nélkül ment: source tarball kicsomagol, majd 'make'. Lefutott a compile, léterjöttek a binárisok, ennyi.
@@ -19,7 +30,7 @@ my private lang service
             - yum install readline-devel.x86_64 (vagy általánosabban a hiányzó libeket kikeresni yum list | grep <lib neve> paranccsal)
             - hál istennek a termcap-et már nem kell telepíteni, mert amúgy nincs is rá yum csomag, mostmár a make le fog futni elvileg, warningokkal ugyan, de lefut, és létrejön a foma és flookup binárisok
 
-- Install hunmorph-foma:
+### Install hunmorph-foma:
 
     - Innen letölthető: https://github.com/r0ller/hunmorph-foma
     - A leírás alapján még nem fog menni, de a megoldás itt van: https://hup.hu/node/158237
