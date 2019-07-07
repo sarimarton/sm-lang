@@ -31,7 +31,7 @@ app.get('/lang/googletranslate', (req, res) => {
 const getMulti = async (req) => {
   // Parallel run kills the server with puppeteer, and also possibly triggers
   // Google Translate service temporary ban with the fetch method
-  
+
   // return Promise.all([
   //   getGoogleTranslate('en', req.query.q),
   //   getGoogleTranslate('sw', req.query.q),
@@ -73,18 +73,13 @@ app.get('/lang/hu/wordanalysis', (req, res) => {
 
 app.get('/lang/everything', (req, res) => {
   getMulti(req)
-  .then(res =>
-    Promise.all(
-      res.hu.split(' ')
+  .then(res => ({
+    ...res,
+    huWords: res.hu.split(' ')
       .map(word => word.replace(/[?!, ]|\n/g, '').trim())
       .filter(word => word)
-      .map(hunmorphFomaAnalysis)
-    )
-    .then(huWords => ({
-      ...res,
-      huWords
-    }))
-  )
+      .reduce((cum, next) => ({ ...cum, [next]: hunmorphFomaAnalysis(next) }), {})
+  }))
   .then(JSON.stringify)
   .then(result => res.send(result))
 })

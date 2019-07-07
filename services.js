@@ -102,5 +102,6 @@ export const hunmorphFomaAnalysis = q => {
       `echo ${q} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
       { encoding: 'utf8' }
     )
-    .replace(/\n/g, '').replace(/\t+/, ': ')
+    .replace(/\n+$/g, '')
+    .replace(/\t+/, ': ')
 }
