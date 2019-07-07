@@ -45,7 +45,7 @@ app.get('/lang/googletranslate/multi', (req, res) => {
       getGoogleTranslate('en', hu),
     ])
   )
-  .then(([en, sw, hu, en2sw, en2hu]) => ({ en, sw, en2sw, en2hu }))
+  .then(([en, sw, hu, sw2en, hu2en]) => ({ en, sw, hu, sw2en, hu2en }))
   .then(JSON.stringify)
   .then(result => res.send(result))
 })
