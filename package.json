@@ -7,7 +7,9 @@
     "start": "pm2 start index.js --watch --node-args=\"-r esm\"",
     "stop": "pm2 stop index.js",
     "restart": "pkill -f chrome && pm2 restart index.js --watch --node-args=\"-r esm\"",
-    "killchromes": "pkill -f chrome"
+    "killchromes": "pkill -f chrome",
+    "foma": "sh -c 'echo $0 | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst'",
+    "foma-gen": "sh -c 'echo $0 | ./deps/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'"
   },
   "type": "module",
   "dependencies": {
