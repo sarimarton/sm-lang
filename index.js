@@ -82,7 +82,7 @@ app.get('/lang/hu/analysis', (req, res) => {
       .map(getHuWordAnalysis)
   )
   .then(results => results.flat())
-  .then(results => `<pre>${results.join('\n\n')}</pre>`)
+  .then(results => `<pre>${results.join('\n')}</pre>`)
   .then(result => res.send(result))
 })
 
