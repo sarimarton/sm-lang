@@ -125,12 +125,10 @@ export const getHuWordAnalysis = word => {
         browseDictCCResult.includes('Sorry! Expression could not be found!')
           ? ['<translation not found>']
           : stripHtml(
-              (browseDictCCResult.match(/<dd>(?:.|\n)*?<\/dd>/) || ' ')
-              [0]
+              (browseDictCCResult.match(/<dd>(?:.|\n)*?<\/dd>/) || [''])[0]
               .replace(/<br>/g, '\n')
             )
             .split('\n')
-
 
       return `${word} =\n` +
         `${stem} (${translations.join(', ')})` +

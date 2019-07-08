@@ -5,6 +5,7 @@ import utf8 from 'utf8'
 import { exec } from 'child_process'
 import { getGoogleTranslate } from './services.js'
 import { getHuWordAnalysis } from './services.js'
+import { getHunmorphFomaAnalysis } from './services.js'
 
 const app = express()
 
@@ -62,7 +63,7 @@ app.get('/lang/googletranslate/multi', (req, res) => {
 })
 
 app.get('/lang/hunmorph-foma', (req, res) => {
-  hunmorphFomaAnalysis(req.query.q)
+  getHunmorphFomaAnalysis(req.query.q)
     .then(result => res.send(result))
 })
 
@@ -85,7 +86,7 @@ app.get('/lang/everything', (req, res) => {
       .filter(word => word)
 
     const huWordsAnalysisMap = huWords
-      .reduce((cum, next) => ({ ...cum, [next]: hunmorphFomaAnalysis(next) }), {})
+      .reduce((cum, next) => ({ ...cum, [next]: getHunmorphFomaAnalysis(next) }), {})
 
     return {
       ...res,
