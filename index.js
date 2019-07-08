@@ -70,7 +70,7 @@ app.get('/lang/googletranslate/multi', (req, res) => {
 })
 
 app.get('/lang/hunmorph-foma', (req, res) => {
-  getHunmorphFomaAnalysis(req.query.q)
+  Promise.resolve(getHunmorphFomaAnalysis(req.query.q))
     .then(result => res.send(result))
 })
 
@@ -103,6 +103,6 @@ app.get('/lang/everything', (req, res) => {
         .join('\n\n')
     }
   })
-  .then(JSON.stringify)
+  .then(result => `<pre>${JSON.stringify(result, null, 2)}</pre>`)
   .then(result => res.send(result))
 })
