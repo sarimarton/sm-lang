@@ -56,6 +56,13 @@ const getMulti = async (req) => {
   return { en, sw, hu, sw2en, hu2en }
 }
 
+const getWords = (text) => {
+  return text
+    .split(' ')
+    .map(word => word.replace(/[?!, ]|\n/g, '').trim())
+    .filter(word => word)
+}
+
 app.get('/lang/googletranslate/multi', (req, res) => {
   getMulti(req)
   .then(JSON.stringify)
@@ -68,7 +75,8 @@ app.get('/lang/hunmorph-foma', (req, res) => {
 })
 
 app.get('/lang/hu/analysis', (req, res) => {
-  const words = req.query.q.split(' ')
+  const words = getWords(req.query.q)
+
   Promise.all(
     words
       .map(getHuWordAnalysis)
@@ -81,9 +89,7 @@ app.get('/lang/hu/analysis', (req, res) => {
 app.get('/lang/everything', (req, res) => {
   getMulti(req)
   .then(res => {
-    const huWords = res.hu.split(' ')
-      .map(word => word.replace(/[?!, ]|\n/g, '').trim())
-      .filter(word => word)
+    const huWords = getWords(res.hu)
 
     const huWordsAnalysisMap = huWords
       .reduce((cum, next) => ({ ...cum, [next]: getHunmorphFomaAnalysis(next) }), {})
