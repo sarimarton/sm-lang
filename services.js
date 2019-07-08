@@ -4,40 +4,57 @@ import { exec, execSync } from 'child_process'
 import puppeteer from 'puppeteer'
 import stripHtml from 'string-strip-html'
 
-export const getGoogleTranslateFetch = (tl, q) =>
-  // Uppercase accentuated letters cause problems here
-  fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${q.toLowerCase()}`)
-    .then(res => res.text())
-    .then(txt => { try { return utf8.decode(txt) } catch { return txt } })
-    .then(txt => { try { return JSON.parse(txt)[0][0][0] } catch { throw 'Google Translate Fetch Error' }})
+const browser = puppeteer.launch({
+  args: ['--no-sandbox']
+})
 
-export const getGoogleTranslatePuppeteer = async (tl, q) => {
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox']
-  })
+const getGoogleTranslatePage = (function() {
+  let page
+  let lastTs = new Date()
 
-  const page = await browser.newPage()
-  await page.setViewport({ width: 1280, height: 1800 })
-  await page.goto(`https://translate.google.com/#view=home&op=translate&sl=auto&tl=${tl}&text=${q}`)
-
-  let info = undefined
-
-  while (info == undefined) {
-    try {
-      info = await page.$eval('.translation', el => el.textContent)
-    } catch {
-      await new Promise(resolve => setTimeout(resolve, 200))
+  return async function () {
+    if (!page) {
+      page = await (await browser).newPage()
+      await page.setViewport({ width: 500, height: 500 })
+      await page.goto('https://translate.google.com/')
     }
+
+    if (new Date() - lastTs > 1e3 * 60 * 60 * 24) {
+      lastTs = new Date()
+      await page.reload()
+    }
+
+    return page
   }
+})()
 
-  await browser.close()
-
-  return info
+export const getSourceLang = q => {
+  if (/[öüóőúéáűíÖÜÓŐÚÉÁŰÍ]/.test(q)) {
+    return 'hu'
+  } else {
+    return 'auto'
+  }
 }
 
-export const getGoogleTranslate = (tl, q) => {
-  return getGoogleTranslateFetch(tl, q)
-    .catch(() => getGoogleTranslatePuppeteer(tl, q))
+export const getGoogleTranslate = async (tl, q) => {
+  const sl = getSourceLang(q)
+
+  const page = await getGoogleTranslatePage()
+
+  const info = await new Promise(resolve => {
+    const responseListener = async response => {
+      if (response.url().startsWith('https://translate.google.com/translate_a/single')) {
+        page.removeListener('response', responseListener);
+        const responseJson = JSON.parse(await response.text())
+        resolve(responseJson[0].map(res => res[0]).join(''))
+      }
+    }
+
+    page.on('response', responseListener);
+    page.goto(`https://translate.google.com/#view=home&op=translate&sl=${sl}&tl=${tl}&text=${q}`)
+  })
+
+  return info
 }
 
 export const getHunmorphFomaAnalysis = word => {
