@@ -2,6 +2,7 @@ import fetch from 'node-fetch'
 import utf8 from 'utf8'
 import { exec, execSync } from 'child_process'
 import puppeteer from 'puppeteer'
+import stripHtml from 'string-strip-html'
 
 export const getGoogleTranslateFetch = (tl, q) =>
   fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${tl}&dt=t&q=${q}`)
@@ -92,16 +93,48 @@ export const getGoogleTranslatePuppeteer = async (tl, q) => {
 // export const getGoogleTranslate = getGoogleTranslateCurl
 // export const getGoogleTranslate = getGoogleTranslatePuppeteer
 
-export const getGoogleTranslate = (tl, q) =>
-  getGoogleTranslateFetch(tl, q)
+export const getGoogleTranslate = (tl, q) => {
+  return getGoogleTranslateFetch(tl, q)
     .catch(() => getGoogleTranslatePuppeteer(tl, q))
+}
 
-
-export const hunmorphFomaAnalysis = q => {
+export const getHunmorphFomaAnalysis = word => {
   return execSync(
-      `echo ${q} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
+      `echo ${word} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
       { encoding: 'utf8' }
     )
     .replace(/\n+$/g, '')
-    .replace(/\t+/, ': ')
+    .replace(/\t+/g, ': ')
+    .split('\n')
+}
+
+export const getHuWordAnalysis = word => {
+  const fomaResults = getHunmorphFomaAnalysis(word)
+
+  return Promise.all(
+    fomaResults.map(async fomaResult => {
+      const stem = fomaResult.replace(/.*?:\s+([^+]+).*/, '$1')
+      const fomaParts = fomaResult.replace(/.*?:\s+[^+]+(.*)/, '$1')
+
+      const browseDictCCResult =
+        await
+          fetch(`https://browse.dict.cc/hungarian-english/${stem}.html`)
+            .then(res => res.text())
+
+      const translations =
+        browseDictCCResult.includes('Sorry! Expression could not be found!')
+          ? ['<translation not found>']
+          : stripHtml(
+              (browseDictCCResult.match(/<dd>(?:.|\n)*?<\/dd>/) || ' ')
+              [0]
+              .replace(/<br>/g, '\n')
+            )
+            .split('\n')
+
+
+      return `${word} =\n` +
+        `${stem} (${translations.join(', ')})` +
+        `${fomaParts.split('+').join('\n + ')}\n`
+    })
+  )
 }

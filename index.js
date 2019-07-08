@@ -4,7 +4,7 @@ import fetch from 'node-fetch'
 import utf8 from 'utf8'
 import { exec } from 'child_process'
 import { getGoogleTranslate } from './services.js'
-import { hunmorphFomaAnalysis } from './services.js'
+import { getHuWordAnalysis } from './services.js'
 
 const app = express()
 
@@ -66,9 +66,15 @@ app.get('/lang/hunmorph-foma', (req, res) => {
     .then(result => res.send(result))
 })
 
-app.get('/lang/hu/wordanalysis', (req, res) => {
-  req.url = '/lang/hunmorph-foma'
-  app.handle(req, res)
+app.get('/lang/hu/analysis', (req, res) => {
+  const words = req.query.q.split(' ')
+  Promise.all(
+    words
+      .map(getHuWordAnalysis)
+  )
+  .then(results => results.flat())
+  .then(results => `<pre>${results.join('\n\n')}</pre>`)
+  .then(result => res.send(result))
 })
 
 app.get('/lang/everything', (req, res) => {
