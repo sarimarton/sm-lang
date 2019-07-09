@@ -1,5 +1,5 @@
 import utf8 from 'utf8'
-import { exec, execSync } from 'child_process'
+import { execSync } from 'child_process'
 import puppeteer from 'puppeteer'
 import _ from 'lodash'
 
@@ -68,47 +68,63 @@ export const getGoogleTranslate = async ({ tl, q, sl, pageIdx }) => {
 export const getHunmorphFomaAnalysis = word => {
   const escaped = word.toLowerCase().replace(/(['"])/g, '\\$1')
 
-  return execSync(
+  return (
+    execSync(
       `echo ${escaped} | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst`,
       { encoding: 'utf8' }
     )
-    .replace(/\n+$/g, '')
-    .replace(/\t+/g, ': ')
-    .split('\n')
+    .trim()
+  )
 }
 
 const fomaToGoogleWordClassMap = {
   'Noun': 'noun',
   'Verb': 'verb',
   'Adv': 'adverb',
-  'Neg': 'particle'
+  'Adj': 'adjective',
+  'Neg': 'particle',
+  'Num': ''
 }
+
+const fomaRE =
+  /^(?<input>.*?)\t(?:\+(?<pref>Pref)\+)?(?<stem>[^+]+)\+(?<wclass>[^+]+)(?:\+(?<parts>(?:[^+]+(?:\+|$))+))?/
 
 export const getHuWordAnalysis = async word => {
   const fomaResults = getHunmorphFomaAnalysis(word)
+    .split('\n')
 
-  let result = `${word} =\n`
+  const results = []
 
   for (let fomaResult of fomaResults) {
-    const stem = fomaResult.replace(/.*?:\s+([^+]+).*/, '$1')
-    const fomaParts = fomaResult.replace(/.*?:\s+[^+]+(.*)/, '$1')
+    const matches = fomaResult.match(fomaRE)
+    if (!matches) {
+      continue
+    }
+    const { input, pref, stem, wclass, parts } = matches.groups
+    const fomaParts = (parts || '')
       .split('+')
-      .slice(1)
+      .filter(part => part && (part !== 'Nom'))
 
-    const wordClass = fomaParts[0]
-
+    const json = await getGoogleTranslateJson({ sl: 'hu', tl: 'en', q: stem })
     const translations =
-      _.chain(await getGoogleTranslateJson({ sl: 'hu', tl: 'en', q: stem }))
-        .get(1)
-        .filter(([wClass, engTranslations]) => fomaToGoogleWordClassMap[wordClass] === wClass)
-        .get('0.1')
-        .value()
-        || []
+      _.compact(
+        _.chain(json)
+          .get(1)
+          .filter(([gWordClass]) => fomaToGoogleWordClassMap[wclass] === gWordClass)
+          .get('0.1')
+          .value()
+        ||
+        _.castArray(_.get(json, '0.0.0'))
+      )
 
-    result +=
-      `${stem} [${wordClass}]; ${translations.join(', ')}` +
-      `${['', ...fomaParts.slice(1)].join('\n + ')}\n`
+    console.log(fomaParts)
+
+    results.push(
+      `${pref ? ('  + ' + pref + '\n') : ''}` +
+      `  ${stem} [${wclass}]; ${translations.join(', ')}` +
+      `${fomaParts.length ? ['', ...fomaParts].join('\n  + ') : ''}\n`
+    )
   }
 
-  return result
+  return `${word} =\n` + results.join('  -----------\n')
 }
