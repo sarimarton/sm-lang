@@ -1,60 +1,68 @@
-import fetch from 'node-fetch'
 import utf8 from 'utf8'
 import { exec, execSync } from 'child_process'
 import puppeteer from 'puppeteer'
-import stripHtml from 'string-strip-html'
+import _ from 'lodash'
 
 const browser = puppeteer.launch({
   args: ['--no-sandbox']
 })
 
-const getGoogleTranslatePage = (function() {
-  let page
-  let lastTs = new Date()
+const pages = []
 
-  return async function () {
-    if (!page) {
-      page = await (await browser).newPage()
-      await page.setViewport({ width: 500, height: 500 })
-      await page.goto('https://translate.google.com/')
+const getGoogleTranslatePage = async function (pageIdx) {
+  if (!pages[pageIdx]) {
+    pages[pageIdx] = {
+      page: await (await browser).newPage(),
+      ts: new Date()
     }
-
-    if (new Date() - lastTs > 1e3 * 60 * 60 * 24) {
-      lastTs = new Date()
-      await page.reload()
-    }
-
-    return page
+    await pages[pageIdx].page.setViewport({ width: 500, height: 500 })
+    await pages[pageIdx].page.goto('https://translate.google.com/')
   }
-})()
 
-export const getSourceLang = q => {
-  if (/[öüóőúéáűíÖÜÓŐÚÉÁŰÍ]/.test(q)) {
-    return 'hu'
-  } else {
-    return 'auto'
+  if (new Date() - pages[pageIdx].ts > 1e3 * 60 * 60 * 24) {
+    pages[pageIdx].ts = new Date()
+    await pages[pageIdx].page.reload()
   }
+
+  return pages[pageIdx].page
 }
 
-export const getGoogleTranslate = async (tl, q) => {
-  const sl = getSourceLang(q)
+export const getSourceLang = q =>
+  /[öüóőúéáűíÖÜÓŐÚÉÁŰÍ]/.test(q) ? 'hu' : 'auto'
 
-  const page = await getGoogleTranslatePage()
+
+export const getGoogleTranslateJson = async ({ tl, q, sl, pageIdx }) => {
+
+  const _sl = sl || getSourceLang(q)
+
+  const page = await getGoogleTranslatePage(pageIdx || 0)
+  const pageObj = pages[pageIdx || 0]
+
+  if (JSON.stringify({ tl, q, sl }) === pageObj.lastKey) {
+    return pageObj.lastResult
+  }
+  pageObj.lastKey = JSON.stringify({ tl, q, sl })
 
   const info = await new Promise(resolve => {
     const responseListener = async response => {
       if (response.url().startsWith('https://translate.google.com/translate_a/single')) {
-        page.removeListener('response', responseListener);
-        const responseJson = JSON.parse(await response.text())
-        resolve(responseJson[0].map(res => res[0]).join(''))
+        page.removeListener('response', responseListener)
+        pageObj.lastResult = JSON.parse(await response.text())
+        resolve(JSON.parse(await response.text()))
       }
     }
 
-    page.on('response', responseListener);
-    page.goto(`https://translate.google.com/#view=home&op=translate&sl=${sl}&tl=${tl}&text=${q}`)
+    page.on('response', responseListener)
+    page.goto(`https://translate.google.com/#view=home&op=translate&sl=${_sl}&tl=${tl}&text=${q}`)
   })
 
   return info
+}
+
+export const getGoogleTranslate = async ({ tl, q, sl, pageIdx }) => {
+  return (await getGoogleTranslateJson({ tl, q, sl, pageIdx }))
+    [0]
+    .map(res => res[0]).join('')
 }
 
 export const getHunmorphFomaAnalysis = word => {
@@ -69,35 +77,38 @@ export const getHunmorphFomaAnalysis = word => {
     .split('\n')
 }
 
-export const getHuWordAnalysis = word => {
+const fomaToGoogleWordClassMap = {
+  'Noun': 'noun',
+  'Verb': 'verb',
+  'Adv': 'adverb',
+  'Neg': 'particle'
+}
+
+export const getHuWordAnalysis = async word => {
   const fomaResults = getHunmorphFomaAnalysis(word)
 
-  return Promise.all(
-    fomaResults.map(async fomaResult => {
-      const stem = fomaResult.replace(/.*?:\s+([^+]+).*/, '$1')
-      const fomaParts = fomaResult.replace(/.*?:\s+[^+]+(.*)/, '$1')
-        .split('+')
-        .slice(1)
+  let result = `${word} =\n`
 
-      const wordClass = fomaParts[0]
+  for (let fomaResult of fomaResults) {
+    const stem = fomaResult.replace(/.*?:\s+([^+]+).*/, '$1')
+    const fomaParts = fomaResult.replace(/.*?:\s+[^+]+(.*)/, '$1')
+      .split('+')
+      .slice(1)
 
-      const browseDictCCResult =
-        await
-          fetch(`https://browse.dict.cc/hungarian-english/${stem}.html`)
-            .then(res => res.text())
+    const wordClass = fomaParts[0]
 
-      const translations =
-        browseDictCCResult.includes('Sorry! Expression could not be found!')
-          ? ['<translation not found>']
-          : stripHtml(
-              (browseDictCCResult.match(/<dd>(?:.|\n)*?<\/dd>/) || [''])[0]
-              .replace(/<br>/g, '\n')
-            )
-            .split('\n')
+    const translations =
+      _.chain(await getGoogleTranslateJson({ sl: 'hu', tl: 'en', q: stem }))
+        .get(1)
+        .filter(([wClass, engTranslations]) => fomaToGoogleWordClassMap[wordClass] === wClass)
+        .get('0.1')
+        .value()
+        || []
 
-      return `${word} =\n` +
-        `${stem} [${wordClass}]; ${translations.join(', ')}` +
-        `${['', ...fomaParts.slice(1)].join('\n + ')}\n`
-    })
-  )
+    result +=
+      `${stem} [${wordClass}]; ${translations.join(', ')}` +
+      `${['', ...fomaParts.slice(1)].join('\n + ')}\n`
+  }
+
+  return result
 }

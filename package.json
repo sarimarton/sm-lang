@@ -16,11 +16,10 @@
     "babel-eslint": "^10.0.1",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "node-fetch": "^2.6.0",
+    "lodash": "^4.17.11",
     "pm2": "^3.5.1",
     "puppeteer": "^1.18.1",
     "standard": "^12.0.1",
-    "string-strip-html": "^4.0.20",
     "utf8": "^3.0.0"
   },
   "repository": {

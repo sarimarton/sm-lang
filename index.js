@@ -1,6 +1,5 @@
 import express from 'express'
 import http from 'http'
-import fetch from 'node-fetch'
 import utf8 from 'utf8'
 import { exec } from 'child_process'
 import { getGoogleTranslate } from './services.js'
@@ -25,33 +24,24 @@ app.get('/', (req, res) => {
 })
 
 app.get('/lang/googletranslate', (req, res) => {
-  getGoogleTranslate(req.query.tl, req.query.q)
+  getGoogleTranslate({ tl: req.query.tl, q: req.query.q })
     .then(result => res.send(result))
 })
 
 const getMulti = async (req) => {
-  // Parallel run kills the server with puppeteer, and also possibly triggers
-  // Google Translate service temporary ban with the fetch method
-
-  // return Promise.all([
-  //   getGoogleTranslate('en', req.query.q),
-  //   getGoogleTranslate('sw', req.query.q),
-  //   getGoogleTranslate('hu', req.query.q),
-  // ])
-  // .then(([en, sw, hu]) =>
-  //   Promise.all([
-  //     en, sw, hu,
-  //     getGoogleTranslate('en', sw),
-  //     getGoogleTranslate('en', hu),
-  //   ])
-  // )
-  // .then(([en, sw, hu, sw2en, hu2en]) => ({ en, sw, hu, sw2en, hu2en }))
-
-  const en = await getGoogleTranslate('en', req.query.q)
-  const sw = await getGoogleTranslate('sw', req.query.q)
-  const hu = await getGoogleTranslate('hu', req.query.q)
-  const sw2en = await getGoogleTranslate('en', sw)
-  const hu2en = await getGoogleTranslate('en', hu)
+  const [en, sw, hu, sw2en, hu2en] =
+    await Promise.all([
+      getGoogleTranslate({ tl: 'en', q: req.query.q, pageIdx: 0 }),
+      getGoogleTranslate({ tl: 'sw', q: req.query.q, pageIdx: 1 }),
+      getGoogleTranslate({ tl: 'hu', q: req.query.q, pageIdx: 2 }),
+    ])
+    .then(([en, sw, hu]) =>
+      Promise.all([
+        en, sw, hu,
+        getGoogleTranslate({ sl: 'sw', tl: 'en', q: sw, pageIdx: 0 }),
+        getGoogleTranslate({ sl: 'hu', tl: 'en', q: hu, pageIdx: 1 })
+      ])
+    )
 
   return { en, sw, hu, sw2en, hu2en }
 }
@@ -74,16 +64,16 @@ app.get('/lang/hunmorph-foma', (req, res) => {
     .then(result => res.send(result))
 })
 
-app.get('/lang/hu/analysis', (req, res) => {
+app.get('/lang/hu/analysis', async (req, res) => {
   const words = getWords(req.query.q)
 
-  Promise.all(
-    words
-      .map(getHuWordAnalysis)
-  )
-  .then(results => results.flat())
-  .then(results => `<pre>${results.join('\n')}</pre>`)
-  .then(result => res.send(result))
+  const results = []
+
+  for (let word of words) {
+    results.push(await getHuWordAnalysis(word))
+  }
+
+  res.send(`<pre>${results.join('\n')}</pre>`)
 })
 
 app.get('/lang/everything', (req, res) => {
