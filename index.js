@@ -52,18 +52,6 @@ const getWords = (text) => {
     .filter(word => word)
 }
 
-const pad = (req, text) => {
-  if (req.query.pad) {
-    const width = 50
-    return text
-      .split('\n')
-      .map(line => line.padEnd(width) + '.')
-      .join('\n')
-  }
-
-  return text
-}
-
 app.get('/lang/googletranslate/multi', (req, res) => {
   getMulti(req)
   .then(JSON.stringify)
@@ -78,13 +66,53 @@ app.get('/lang/hunmorph-foma', (req, res) => {
 app.get('/lang/hu/analysis', async (req, res) => {
   const words = getWords(req.query.q)
 
+  if (req.query.format === 'list') {
+    const result = {
+      prompt: req.query.q,
+      list: {}
+    }
+
+    for (let word of words) {
+      const analyses = await getHuWordAnalysis(word)
+
+      for (let [idx, res] of analyses.entries()) {
+        const key = word + ''.padEnd(idx)
+
+        result.list[key] =
+          _.chain([
+            res.pref,
+            `${res.stem} ${res.wclass.toUpperCase()} "${res.translations.slice(0, 2).join(', ')}"`,
+            ...res.fomaParts
+          ])
+          .compact()
+          .map(part => `[${part}]`)
+          .join(' + ')
+          .value()
+      }
+    }
+
+    res.send(`<pre>${JSON.stringify(result, null, 2)}</pre>`)
+    return;
+  }
+
   const results = []
 
   for (let word of words) {
-    results.push(await getHuWordAnalysis(word))
+    const analyses = await getHuWordAnalysis(word)
+
+    results.push(
+      `${word} =\n` +
+      analyses.
+        map(res =>
+          `${res.pref ? ('  + ' + res.pref + '\n') : ''}` +
+          `  ${res.stem} [${res.wclass}]; ${res.translations.slice(0, 2).join(', ')}` +
+          `${res.fomaParts.length ? ['', ...res.fomaParts].join('\n  + ') : ''}\n`
+        )
+      .join('  -----------\n')
+    )
   }
 
-  res.send(pad(req, `<pre>${results.join('\n')}</pre>`))
+  res.send(`<pre>${results.join('\n')}</pre>`)
 })
 
 app.get('/lang/everything', (req, res) => {

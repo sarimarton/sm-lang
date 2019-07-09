@@ -117,12 +117,15 @@ export const getHuWordAnalysis = async word => {
         _.castArray(_.get(json, '0.0.0'))
       )
 
-    results.push(
-      `${pref ? ('  + ' + pref + '\n') : ''}` +
-      `  ${stem} [${wclass}]; ${translations.join(', ')}` +
-      `${fomaParts.length ? ['', ...fomaParts].join('\n  + ') : ''}\n`
-    )
+    results.push({
+      word,
+      pref,
+      stem,
+      wclass,
+      translations,
+      fomaParts
+    })
   }
 
-  return `${word} =\n` + results.join('  -----------\n')
+  return results
 }
