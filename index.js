@@ -54,7 +54,7 @@ const getWords = (text) => {
 
 const pad = (req, text) => {
   if (req.query.pad) {
-    const width = 100
+    const width = 50
     return text
       .split('\n')
       .map(line => line.padEnd(width) + '.')
