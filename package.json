@@ -4,7 +4,7 @@
   "description": "my private lang service",
   "main": "index.js",
   "scripts": {
-    "start": "pm2 start index.js --watch --node-args=\"-r esm\"",
+    "start": "rm -rf ~/.pm2 && pm2 start index.js --watch --node-args=\"-r esm\" && pm2 logs",
     "stop": "pm2 stop index.js",
     "restart": "pkill -f chrome && pm2 restart index.js --watch --node-args=\"-r esm\"",
     "killchromes": "pkill -f chrome",
