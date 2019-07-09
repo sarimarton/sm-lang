@@ -117,8 +117,6 @@ export const getHuWordAnalysis = async word => {
         _.castArray(_.get(json, '0.0.0'))
       )
 
-    console.log(fomaParts)
-
     results.push(
       `${pref ? ('  + ' + pref + '\n') : ''}` +
       `  ${stem} [${wclass}]; ${translations.join(', ')}` +

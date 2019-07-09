@@ -52,6 +52,18 @@ const getWords = (text) => {
     .filter(word => word)
 }
 
+const pad = (req, text) => {
+  if (req.query.pad) {
+    const width = 100
+    return text
+      .split('\n')
+      .map(line => line.padEnd(width) + '.')
+      .join('\n')
+  }
+
+  return text
+}
+
 app.get('/lang/googletranslate/multi', (req, res) => {
   getMulti(req)
   .then(JSON.stringify)
@@ -72,7 +84,7 @@ app.get('/lang/hu/analysis', async (req, res) => {
     results.push(await getHuWordAnalysis(word))
   }
 
-  res.send(`<pre>${results.join('\n')}</pre>`)
+  res.send(pad(req, `<pre>${results.join('\n')}</pre>`))
 })
 
 app.get('/lang/everything', (req, res) => {
