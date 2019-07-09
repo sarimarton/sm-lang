@@ -72,14 +72,16 @@ app.get('/lang/hu/analysis', async (req, res) => {
       list: {}
     }
 
+    let entryIdx = 0
+
     for (let word of words) {
       const analyses = await getHuWordAnalysis(word)
 
       for (let [idx, res] of analyses.entries()) {
         const key = word + ''.padEnd(idx)
 
-        result.list[key] =
-          _.chain([
+        result.list[`${entryIdx}-key`] = key
+        result.list[`${entryIdx}-val`] = _.chain([
             res.pref,
             `${res.stem} ${res.wclass.toUpperCase()} "${res.translations.slice(0, 2).join(', ')}"`,
             ...res.fomaParts
@@ -88,7 +90,17 @@ app.get('/lang/hu/analysis', async (req, res) => {
           .map(part => `[${part}]`)
           .join(' + ')
           .value()
+
+        entryIdx += 1
       }
+    }
+
+    const lastIdx = entryIdx - 1
+
+    while (entryIdx < 32) {
+      result.list[`${entryIdx}-key`] = result.list[`${lastIdx}-key`]
+      result.list[`${entryIdx}-val`] = result.list[`${lastIdx}-val`]
+      entryIdx += 1
     }
 
     res.send(`<pre>${JSON.stringify(result, null, 2)}</pre>`)
