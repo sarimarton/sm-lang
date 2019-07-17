@@ -31,8 +31,8 @@ const getMulti = async (req) => {
   const en = await getGoogleTranslate({ tl: 'en', q: req.query.q })
   const sw = await getGoogleTranslate({ tl: 'sw', q: req.query.q })
   const hu = await getGoogleTranslate({ tl: 'hu', q: req.query.q })
-  const sw2en = await getGoogleTranslate({ sl: 'sw', tl: 'en', q: req.query.q })
-  const hu2en = await getGoogleTranslate({ sl: 'hu', tl: 'en', q: req.query.q })
+  const sw2en = await getGoogleTranslate({ sl: 'sw', tl: 'en', q: sw })
+  const hu2en = await getGoogleTranslate({ sl: 'hu', tl: 'en', q: hu })
 
   // const [en, sw, hu, sw2en, hu2en] =
   //   await Promise.all([
