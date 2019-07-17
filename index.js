@@ -28,19 +28,25 @@ app.get('/lang/googletranslate', (req, res) => {
 })
 
 const getMulti = async (req) => {
-  const [en, sw, hu, sw2en, hu2en] =
-    await Promise.all([
-      getGoogleTranslate({ tl: 'en', q: req.query.q, pageIdx: 0 }),
-      getGoogleTranslate({ tl: 'sw', q: req.query.q, pageIdx: 1 }),
-      getGoogleTranslate({ tl: 'hu', q: req.query.q, pageIdx: 2 }),
-    ])
-    .then(([en, sw, hu]) =>
-      Promise.all([
-        en, sw, hu,
-        getGoogleTranslate({ sl: 'sw', tl: 'en', q: sw, pageIdx: 0 }),
-        getGoogleTranslate({ sl: 'hu', tl: 'en', q: hu, pageIdx: 1 })
-      ])
-    )
+  await en = getGoogleTranslate({ tl: 'en', q: req.query.q })
+  await sw = getGoogleTranslate({ tl: 'sw', q: req.query.q })
+  await hu = getGoogleTranslate({ tl: 'hu', q: req.query.q })
+  await sw2en = getGoogleTranslate({ sl: 'sw', tl: 'en', q: req.query.q })
+  await hu2en = getGoogleTranslate({ sl: 'hu', tl: 'en', q: req.query.q })
+
+  // const [en, sw, hu, sw2en, hu2en] =
+  //   await Promise.all([
+  //     getGoogleTranslate({ tl: 'en', q: req.query.q, pageIdx: 0 }),
+  //     getGoogleTranslate({ tl: 'sw', q: req.query.q, pageIdx: 1 }),
+  //     getGoogleTranslate({ tl: 'hu', q: req.query.q, pageIdx: 2 }),
+  //   ])
+  //   .then(([en, sw, hu]) =>
+  //     Promise.all([
+  //       en, sw, hu,
+  //       getGoogleTranslate({ sl: 'sw', tl: 'en', q: sw, pageIdx: 0 }),
+  //       getGoogleTranslate({ sl: 'hu', tl: 'en', q: hu, pageIdx: 1 })
+  //     ])
+  //   )
 
   return { en, sw, hu, sw2en, hu2en }
 }
