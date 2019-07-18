@@ -14,11 +14,11 @@ app.get('/', (req, res) => {
 `<pre>
     Services:
 
-    google translate:                                     /lang/googletranslate?tl={target language}&q={query}
-    google multi translate (en, sw, hu, sw2en, hu2en):    /lang/googletranslate/multi?q={query}
-    hungarian word analysis:                              /lang/hu/wordanalysis?q={word}
-    -------
-    everything combined:                                  /lang/everything?q={query}
+    /lang/googletranslate?tl={target language}&q={query}
+    /lang/googletranslate/multi?q={query}
+    /lang/hunmorph-foma?q={query}
+    /lang/hu/analysis?[format=list&]q={query}
+    /lang/everything?q={query}
 </pre>`)
 })
 
