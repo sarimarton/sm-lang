@@ -4,23 +4,24 @@
   "description": "my private lang service",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf ~/.pm2 && pm2 start index.js --watch --node-args=\"-r esm\" && pm2 logs",
-    "stop": "pm2 stop index.js",
-    "restart": "pkill -f chrome && pm2 restart index.js --watch --node-args=\"-r esm\"",
+    "start": "rm -rf ~/.pm2 && pm2 start src/index.js --watch --node-args=\"-r esm\" && pm2 logs",
+    "stop": "pm2 stop src/index.js",
+    "restart": "pkill -f chrome && pm2 restart src/index.js --watch --node-args=\"-r esm\"",
     "killchromes": "pkill -f chrome",
     "foma": "sh -c 'echo $0 | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst'",
-    "foma-gen": "sh -c 'echo $0 | ./deps/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'"
+    "foma-gen": "sh -c 'echo $0 | ./deps/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'",
+    "postinstall": "(mkdir deps) || echo Deps seems to be already installed."
   },
-  "type": "module",
   "dependencies": {
-    "babel-eslint": "^10.0.1",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "lodash": "^4.17.11",
-    "pm2": "^3.5.1",
-    "puppeteer": "^1.18.1",
-    "standard": "^12.0.1",
+    "lodash": "^4.17.20",
+    "pm2": "^4.4.1",
+    "puppeteer": "^5.3.0",
     "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "npm-check-updates": "^9.0.1"
   },
   "repository": {
     "type": "git",
