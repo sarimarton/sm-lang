@@ -46,6 +46,7 @@ export const getGoogleTranslateJson = async ({ tl, q, sl, pageIdx }) => {
   const info = await new Promise(resolve => {
     const responseListener = async response => {
       if (response.url().startsWith('https://translate.google.com/translate_a/single')) {
+        // console.log('response', tl, sl, pageIdx)
         page.removeListener('response', responseListener)
         pageObj.lastResult = JSON.parse(await response.text())
         resolve(JSON.parse(await response.text()))
@@ -53,6 +54,7 @@ export const getGoogleTranslateJson = async ({ tl, q, sl, pageIdx }) => {
     }
 
     page.on('response', responseListener)
+    // console.log('request', `https://translate.google.com/#view=home&op=translate&sl=${_sl}&tl=${tl}&text=${q}`)
     page.goto(`https://translate.google.com/#view=home&op=translate&sl=${_sl}&tl=${tl}&text=${q}`)
   })
 
