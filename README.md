@@ -9,6 +9,12 @@ Don't forget to clone this project with --recursive:
 git clone --recursive https://github.com/sarimarton/sm-lang.git
 ```
 
+or get the submodules after clone, before building:
+
+```
+git submodule update --init
+```
+
 After that:
 
 ```
