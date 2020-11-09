@@ -17,16 +17,14 @@ COPY . .
 RUN npm i
 
 # Install foma
-RUN yum install -y gcc make git zlib-devel.x86_64 flex bison readline-devel.x86_64
-RUN cd deps && \
-  git clone https://github.com/mhulden/foma.git && \
-  cd foma/foma && \
+# (Previously source should be git cloned as a submodule!)
+RUN yum install -y gcc make zlib-devel.x86_64 flex bison readline-devel.x86_64
+RUN cd foma/foma && \
   make
 
 # Install hunmorph-foma
-RUN cd deps && \
-  git clone https://github.com/r0ller/hunmorph-foma.git && \
-  cd hunmorph-foma && \
+# (Previously source should be git cloned as a submodule!)
+RUN cd hunmorph-foma && \
   mkdir lexc && \
   mv ./adj lexc && \
   mv ./fxpp lexc && \
@@ -34,7 +32,7 @@ RUN cd deps && \
   mv ./noun lexc && \
   mv ./num lexc && \
   mv ./verb lexc && \
-  export PATH="/usr/app/deps/foma/foma:$PATH" && \
+  export PATH="/usr/app/foma/foma:$PATH" && \
   make
 
 # FROM nginx:alpine
