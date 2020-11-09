@@ -29,13 +29,13 @@ app.get('/lang/googletranslate', (req, res) => {
 
 const getMulti = async (req) => {
   const en = await getGoogleTranslate({ tl: 'en', q: req.query.q })
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 2000))
   const sw = await getGoogleTranslate({ tl: 'sw', q: req.query.q })
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 2000))
   const hu = await getGoogleTranslate({ tl: 'hu', q: req.query.q })
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 1500))
   const sw2en = await getGoogleTranslate({ sl: 'sw', tl: 'en', q: sw })
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  await new Promise(resolve => setTimeout(resolve, 1500))
   const hu2en = await getGoogleTranslate({ sl: 'hu', tl: 'en', q: hu })
 
   // const [en, sw, hu, sw2en, hu2en] =
