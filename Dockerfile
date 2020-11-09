@@ -16,6 +16,27 @@ WORKDIR /usr/app
 COPY . .
 RUN npm i
 
+# Install foma
+RUN yum install -y gcc make git zlib-devel.x86_64 flex bison readline-devel.x86_64
+RUN cd deps && \
+  git clone https://github.com/mhulden/foma.git && \
+  cd foma/foma && \
+  make && \
+  export PATH="/usr/app/deps/foma/foma:$PATH"
+
+# Install hunmorph-foma
+RUN cd deps && \
+  git clone https://github.com/r0ller/hunmorph-foma.git && \
+  cd hunmorph-foma && \
+  mkdir lexc && \
+  mv ./adj lexc && \
+  mv ./fxpp lexc && \
+  mv ./misc lexc && \
+  mv ./noun lexc && \
+  mv ./num lexc && \
+  mv ./verb lexc && \
+  make
+
 # FROM nginx:alpine
 # COPY --from=builder /usr/_app/public /usr/share/nginx/html
 EXPOSE 80 443 22

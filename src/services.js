@@ -70,7 +70,7 @@ export const getHunmorphFomaAnalysis = word => {
 
   return (
     execSync(
-      `echo ${escaped} | ../deps/foma/flookup ../deps/hunmorph-foma/hunfnnum.fst`,
+      `echo ${escaped} | ../deps/foma/foma/flookup ../deps/hunmorph-foma/hunfnnum.fst`,
       { encoding: 'utf8' }
     )
     .trim()
