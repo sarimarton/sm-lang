@@ -4,24 +4,21 @@
   "description": "my private lang service",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf ~/.pm2 && pm2 start src/index.js --watch --node-args=\"-r esm\" && pm2 logs",
-    "stop": "pm2 stop src/index.js",
-    "restart": "pkill -f chrome && pm2 restart src/index.js --watch --node-args=\"-r esm\"",
+    "start": "node src/index.js",
     "killchromes": "pkill -f chrome",
     "foma": "sh -c 'echo $0 | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst'",
     "foma-gen": "sh -c 'echo $0 | ./deps/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'",
     "postinstall": "(mkdir deps) || echo Deps seems to be already installed."
   },
+  "type": "module",
   "dependencies": {
-    "esm": "^3.2.25",
     "express": "^4.17.1",
     "lodash": "^4.17.20",
-    "pm2": "^4.4.1",
-    "puppeteer": "^1.18.1",
+    "puppeteer": "^5.4.1",
     "utf8": "^3.0.0"
   },
   "devDependencies": {
-    "npm-check-updates": "^9.0.1"
+    "npm-check-updates": "^10.0.0"
   },
   "repository": {
     "type": "git",
