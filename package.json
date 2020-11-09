@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "killchromes": "pkill -f chrome",
-    "foma": "sh -c 'echo $0 | ./deps/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst'",
-    "foma-gen": "sh -c 'echo $0 | ./deps/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'",
+    "foma": "sh -c 'echo $0 | ./deps/foma/foma/flookup ./deps/hunmorph-foma/hunfnnum.fst'",
+    "foma-gen": "sh -c 'echo $0 | ./deps/foma/foma/flookup -i ./deps/hunmorph-foma/hunfnnum.fst'",
     "postinstall": "(mkdir deps) || echo Deps seems to be already installed."
   },
   "type": "module",
@@ -30,8 +30,5 @@
   "bugs": {
     "url": "https://github.com/sarimarton/sm-lang/issues"
   },
-  "homepage": "https://github.com/sarimarton/sm-lang#readme",
-  "standard": {
-    "parser": "babel-eslint"
-  }
+  "homepage": "https://github.com/sarimarton/sm-lang#readme"
 }
