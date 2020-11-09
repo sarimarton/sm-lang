@@ -7,7 +7,7 @@ import { getHunmorphFomaAnalysis } from './services.js'
 
 const app = express()
 
-http.createServer(app).listen(3000)
+http.createServer(app).listen(80)
 
 app.get('/', (req, res) => {
   res.send(
