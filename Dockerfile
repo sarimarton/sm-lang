@@ -1,7 +1,5 @@
 FROM centos:centos7 as builder
 
-RUN yum install -y python3
-
 RUN curl -sL https://rpm.nodesource.com/setup_15.x | sh -
 RUN yum install -y nodejs
 
@@ -21,6 +19,8 @@ RUN npm i
 RUN yum install -y gcc make zlib-devel.x86_64 flex bison readline-devel.x86_64
 RUN cd foma/foma && \
   make
+
+# ENV PATH="/usr/app/foma/foma:${PATH}"
 
 # Install hunmorph-foma
 # (Previously source should be git cloned as a submodule!)
