@@ -39,6 +39,7 @@ RUN cd hunmorph-foma && \
 # It's used as an interface for the aws-svc container in the vps repo, e.g.:
 # echo '--version' | socat -,ignoreeof TCP:aws-svc:1111
 # echo echo "translate translate-text --region eu-north-1 --source-language-code hu --target-language-code en --text 'szeretnek vasalni'" | socat -,ignoreeof TCP:aws-svc:1111
+# I need to work around the problems with accentuated characters.
 RUN yum install -y socat
 
 # FROM nginx:alpine
