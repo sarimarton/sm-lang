@@ -1,30 +1,30 @@
 import utf8 from 'utf8'
 import { execSync } from 'child_process'
-import puppeteer from 'puppeteer'
+// import puppeteer from 'puppeteer'
 import _ from 'lodash'
 
-const browser = puppeteer.launch({
-  args: ['--no-sandbox']
-})
+// const browser = puppeteer.launch({
+//   args: ['--no-sandbox']
+// })
 
 const pages = []
 
 const getGoogleTranslatePage = async function (pageIdx) {
-  if (!pages[pageIdx]) {
-    pages[pageIdx] = {
-      page: await (await browser).newPage(),
-      ts: new Date()
-    }
-    await pages[pageIdx].page.setViewport({ width: 500, height: 500 })
-    await pages[pageIdx].page.goto('https://translate.google.com/')
-  }
+  // if (!pages[pageIdx]) {
+  //   pages[pageIdx] = {
+  //     page: await (await browser).newPage(),
+  //     ts: new Date()
+  //   }
+  //   await pages[pageIdx].page.setViewport({ width: 500, height: 500 })
+  //   await pages[pageIdx].page.goto('https://translate.google.com/')
+  // }
 
-  if (new Date() - pages[pageIdx].ts > 1e3 * 60 * 60 * 24) {
-    pages[pageIdx].ts = new Date()
-    await pages[pageIdx].page.reload()
-  }
+  // if (new Date() - pages[pageIdx].ts > 1e3 * 60 * 60 * 24) {
+  //   pages[pageIdx].ts = new Date()
+  //   await pages[pageIdx].page.reload()
+  // }
 
-  return pages[pageIdx].page
+  // return pages[pageIdx].page
 }
 
 export const getSourceLang = q =>
