@@ -1,5 +1,3 @@
-// This stuff is broken now, I should migrate to AWS or Google Cloud
-
 import utf8 from 'utf8'
 import { execSync } from 'child_process'
 // import puppeteer from 'puppeteer'
