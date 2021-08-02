@@ -1,6 +1,0 @@
-[submodule "foma"]
-	path = foma
-	url = https://github.com/mhulden/foma.git
-[submodule "hunmorph-foma"]
-	path = hunmorph-foma
-	url = https://github.com/r0ller/hunmorph-foma.git
