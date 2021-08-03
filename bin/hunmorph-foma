@@ -1,0 +1,1 @@
+echo "$@" | socat -,ignoreeof TCP:hunmorph-foma:$HUNMORPH_FOMA_PORT

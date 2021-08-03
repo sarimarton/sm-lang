@@ -1,0 +1,1 @@
+echo "$@" | socat -,ignoreeof TCP:aws:$AWS_PORT
