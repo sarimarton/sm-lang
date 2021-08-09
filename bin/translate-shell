@@ -1,0 +1,1 @@
+echo "$@" | socat -,ignoreeof TCP:translate-shell:$TRANSLATE_SHELL_PORT

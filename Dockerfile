@@ -1,6 +1,6 @@
 FROM node:16-alpine3.11
 
-RUN apk --no-cache add socat
+RUN apk add socat
 
 COPY --chmod=744 bin/* /usr/bin
 
@@ -9,4 +9,4 @@ COPY src .
 RUN npm i
 
 EXPOSE 80 443 22
-CMD ["node", "src/index.js"]
+CMD ["node", "index.js"]
